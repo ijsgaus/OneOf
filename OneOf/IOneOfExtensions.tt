@@ -1,0 +1,109 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+using System;
+
+namespace OneOf
+{
+	public static class IOneOfExtensions
+	{
+
+<#	for (var i = 1; i < 16; i++)
+	{
+		var typeList = Enumerable.Range(0, i)
+			.Aggregate(new StringBuilder(), (sb, k) => sb.Append(sb.Length == 0 ? "T0" : $", T{k}"), sb => sb.ToString());
+#>
+		#region IOneOf<<#= typeList #>> methods
+		public static TResult Match<<#= typeList #>, TResult>(this IOneOf<<#= typeList #>> oneOf<#
+	    for (var j = 0; j < i; j++)
+	    {
+		#>, Func<T<#=j#>, TResult> f<#= j#><#
+	    }
+	    #>) 
+		{
+			if(oneOf == null) throw new ArgumentNullException(nameof(oneOf));
+			switch(oneOf.Tag)
+			{
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+				case <#= j #>:	return f<#= j #>(oneOf.AsT<#= j #>);
+<#
+		}
+#>				default: throw new InvalidOperationException();
+			}
+		}
+
+		public static TResult MatchSome<<#= typeList #>, TResult>(this IOneOf<<#= typeList #>> oneOf<#
+	    for (var j = 0; j < i; j++)
+	    {
+		#>, Func<T<#=j#>, TResult> f<#= j#> = null<#
+	    }
+	    #>, Func<TResult> otherwise = null)
+		{
+			if(oneOf == null) throw new ArgumentNullException(nameof(oneOf));
+			switch(oneOf.Tag)
+			{
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+				case <#= j #>:
+					if(f<#= j #> != null) return f<#= j #>(oneOf.AsT<#= j #>);
+					if(otherwise != null) return otherwise();
+					throw new InvalidOperationException();
+<#
+		}
+#>				default:
+					if(otherwise != null) return otherwise();
+					throw new InvalidOperationException();
+			}
+		}
+
+		public static void Switch<<#= typeList #>>(this IOneOf<<#= typeList #>> oneOf<#
+	    for (var j = 0; j < i; j++)
+	    {
+		#>, Action<T<#=j#>> f<#= j#><#
+	    }
+	    #>)
+		{
+			if(oneOf == null) throw new ArgumentNullException(nameof(oneOf));
+			switch(oneOf.Tag)
+			{
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+				case <#= j #>:
+					f<#= j #>?.Invoke(oneOf.AsT<#= j #>);
+					break;
+<#
+		}
+#>				
+				default:
+					throw new InvalidOperationException();
+			}
+		}
+
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+		public static void DoWhen<<#= typeList #>>(this IOneOf<<#= typeList #>> oneOf, Action<T<#= j #>> action)
+		{
+			if(oneOf == null) throw new ArgumentNullException(nameof(oneOf));
+			if(action == null) throw new ArgumentNullException(nameof(action));
+			if(oneOf.Tag == <#= j #>) action(oneOf.AsT<#= j #>);
+		}
+<#
+		}
+#>		#endregion			
+	
+<# }#>
+	}
+}

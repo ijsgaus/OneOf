@@ -1,0 +1,32 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+using System;
+
+namespace OneOf
+{
+<#	for (var i = 1; i < 16; i++)
+	{
+		var typeList = Enumerable.Range(0, i)
+			.Aggregate(new StringBuilder(), (sb, k) => sb.Append(sb.Length == 0 ? "out T0" : $", out T{k}"), sb => sb.ToString());
+#>
+	public interface IOneOf<<#= typeList#>>	: IOneOf
+	{
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+		bool IsT<#= j #> { get; }
+		T<#= j #> AsT<#= j #> { get; }
+<#
+		}
+#>		
+	}
+
+<# }#>
+}
+

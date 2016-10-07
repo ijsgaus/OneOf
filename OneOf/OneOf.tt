@@ -1,0 +1,71 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using Newtonsoft.Json;
+
+namespace OneOf
+{
+<#	for (var i = 1; i < 16; i++)
+	{
+		var typeList = Enumerable.Range(0, i)
+			.Aggregate(new StringBuilder(), (sb, k) => sb.Append(sb.Length == 0 ? "T0" : $", T{k}"), sb => sb.ToString());
+#>
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<<#= typeList#>>	: IOneOf<<#= typeList#>>, IEquatable<OneOf<<#= typeList#>>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+<#
+		for (var j = 0; j < i; j++)
+		{
+#>
+		public bool IsT<#= j #>  => Tag == <#= j #>;
+		public T<#= j #> AsT<#= j #> 
+		{ 
+			get 
+			{ 
+				if(!IsT<#= j #>) throw new InvalidOperationException($"Cannot return as {typeof(T<#= j #>)} as result, value is {Value?.GetType()}");  
+				return (T<#= j #>) Value;
+			}
+		}
+		public static implicit operator OneOf<<#= typeList#>> (T<#= j #> t)
+        {
+	         return new OneOf<<#= typeList#>>(t, <#= j #>);
+        }
+
+<#
+		}
+#>		
+		public bool Equals(OneOf<<#= typeList #>> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<<#= typeList#>> && Equals((OneOf<<#= typeList#>>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
+
+<# }#>
+}

@@ -1,1169 +1,2181 @@
-
-using System;
+﻿using System;
 using Newtonsoft.Json;
 
 namespace OneOf
 {
-	
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0>	: IOneOf<T0>, IEquatable<OneOf<T0>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
 
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
-	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
-	    }
-
-
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0> (T0 t)
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0> (T0 t)
         {
 	         return new OneOf<T0>(t, 0);
         }
 
-
-	    public void Switch(Action<T0> f0)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0> && Equals((OneOf<T0>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1>	: IOneOf<T0, T1>, IEquatable<OneOf<T0, T1>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1> (T0 t)
         {
 	         return new OneOf<T0, T1>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1> (T1 t)
         {
 	         return new OneOf<T0, T1>(t, 1);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1> && Equals((OneOf<T0, T1>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2>	: IOneOf<T0, T1, T2>, IEquatable<OneOf<T0, T1, T2>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2> (T0 t)
         {
 	         return new OneOf<T0, T1, T2>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2> (T1 t)
         {
 	         return new OneOf<T0, T1, T2>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2> (T2 t)
         {
 	         return new OneOf<T0, T1, T2>(t, 2);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2> && Equals((OneOf<T0, T1, T2>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3>	: IOneOf<T0, T1, T2, T3>, IEquatable<OneOf<T0, T1, T2, T3>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3>(t, 3);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2, T3> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3, T4> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3> && Equals((OneOf<T0, T1, T2, T3>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4>	: IOneOf<T0, T1, T2, T3, T4>, IEquatable<OneOf<T0, T1, T2, T3, T4>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4>(t, 3);
         }
 
-
-        public bool IsT4 { get { return index == 4; } }
-        public T4 AsT4 { get { return Get<T4>(4); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4> (T4 t)
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4> (T4 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4>(t, 4);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3, Action<T4> f4)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-			if (this.IsT4 && f4 != null) { f4(this.AsT4); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3, Func<T4, TResult> f4)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<T4, TResult> f4 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2, T3, T4> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3, T4> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3, T4> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3, T4, T5> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4> && Equals((OneOf<T0, T1, T2, T3, T4>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5>	: IOneOf<T0, T1, T2, T3, T4, T5>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 3);
         }
 
-
-        public bool IsT4 { get { return index == 4; } }
-        public T4 AsT4 { get { return Get<T4>(4); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T4 t)
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T4 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 4);
         }
 
-
-        public bool IsT5 { get { return index == 5; } }
-        public T5 AsT5 { get { return Get<T5>(5); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T5 t)
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5> (T5 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5>(t, 5);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3, Action<T4> f4, Action<T5> f5)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-			if (this.IsT4 && f4 != null) { f4(this.AsT4); return; }
-			if (this.IsT5 && f5 != null) { f5(this.AsT5); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3, Func<T4, TResult> f4, Func<T5, TResult> f5)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<T4, TResult> f4 = null, Func<T5, TResult> f5 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2, T3, T4, T5> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3, T4, T5> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3, T4, T5, T6> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5> && Equals((OneOf<T0, T1, T2, T3, T4, T5>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6>	: IOneOf<T0, T1, T2, T3, T4, T5, T6>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 3);
         }
 
-
-        public bool IsT4 { get { return index == 4; } }
-        public T4 AsT4 { get { return Get<T4>(4); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T4 t)
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T4 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 4);
         }
 
-
-        public bool IsT5 { get { return index == 5; } }
-        public T5 AsT5 { get { return Get<T5>(5); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T5 t)
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T5 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 5);
         }
 
-
-        public bool IsT6 { get { return index == 6; } }
-        public T6 AsT6 { get { return Get<T6>(6); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T6 t)
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6> (T6 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6>(t, 6);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3, Action<T4> f4, Action<T5> f5, Action<T6> f6)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-			if (this.IsT4 && f4 != null) { f4(this.AsT4); return; }
-			if (this.IsT5 && f5 != null) { f5(this.AsT5); return; }
-			if (this.IsT6 && f6 != null) { f6(this.AsT6); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3, Func<T4, TResult> f4, Func<T5, TResult> f5, Func<T6, TResult> f6)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<T4, TResult> f4 = null, Func<T5, TResult> f5 = null, Func<T6, TResult> f6 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3, T4, T5, T6> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 3);
         }
 
-
-        public bool IsT4 { get { return index == 4; } }
-        public T4 AsT4 { get { return Get<T4>(4); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T4 t)
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T4 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 4);
         }
 
-
-        public bool IsT5 { get { return index == 5; } }
-        public T5 AsT5 { get { return Get<T5>(5); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T5 t)
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T5 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 5);
         }
 
-
-        public bool IsT6 { get { return index == 6; } }
-        public T6 AsT6 { get { return Get<T6>(6); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T6 t)
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T6 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 6);
         }
 
-
-        public bool IsT7 { get { return index == 7; } }
-        public T7 AsT7 { get { return Get<T7>(7); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T7 t)
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7> (T7 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7>(t, 7);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3, Action<T4> f4, Action<T5> f5, Action<T6> f6, Action<T7> f7)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-			if (this.IsT4 && f4 != null) { f4(this.AsT4); return; }
-			if (this.IsT5 && f5 != null) { f5(this.AsT5); return; }
-			if (this.IsT6 && f6 != null) { f6(this.AsT6); return; }
-			if (this.IsT7 && f7 != null) { f7(this.AsT7); return; }
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3, Func<T4, TResult> f4, Func<T5, TResult> f5, Func<T6, TResult> f6, Func<T7, TResult> f7)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-			if (this.IsT7 && f7 != null) return f7(this.AsT7);
-
-	    	throw new InvalidOperationException();
-		}
-
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<T4, TResult> f4 = null, Func<T5, TResult> f5 = null, Func<T6, TResult> f6 = null, Func<T7, TResult> f7 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-
-			if (this.IsT7 && f7 != null) return f7(this.AsT7);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
-		}
-
-
 		
-		bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7> && Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
-            }
-        }
-
-	}
-
-
-    [JsonConverter(typeof(OneOfJsonConverter))]
-	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> : IOneOf
-    {
-	    readonly object value;
-	    readonly int index;
-	    
-		OneOf(object value, int index)	    { this.value = value; this.index = index;	     }
-	
-		object IOneOf.Value { get { return value; } }
-	
-	    T Get<T>(int index)
+		public override bool Equals(object obj)
 	    {
-		    if (index != this.index)
-		    {
-		    	throw new InvalidOperationException("Cannot return as T" + index + " as result is T" + this.index);
-            }
-	        return (T)value;
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7>) obj);
 	    }
 
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-        public bool IsT0 { get { return index == 0; } }
-        public T0 AsT0 { get { return Get<T0>(0); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T0 t)
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T0 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 0);
         }
 
-
-        public bool IsT1 { get { return index == 1; } }
-        public T1 AsT1 { get { return Get<T1>(1); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T1 t)
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T1 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 1);
         }
 
-
-        public bool IsT2 { get { return index == 2; } }
-        public T2 AsT2 { get { return Get<T2>(2); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T2 t)
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T2 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 2);
         }
 
-
-        public bool IsT3 { get { return index == 3; } }
-        public T3 AsT3 { get { return Get<T3>(3); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T3 t)
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T3 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 3);
         }
 
-
-        public bool IsT4 { get { return index == 4; } }
-        public T4 AsT4 { get { return Get<T4>(4); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T4 t)
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T4 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 4);
         }
 
-
-        public bool IsT5 { get { return index == 5; } }
-        public T5 AsT5 { get { return Get<T5>(5); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T5 t)
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T5 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 5);
         }
 
-
-        public bool IsT6 { get { return index == 6; } }
-        public T6 AsT6 { get { return Get<T6>(6); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T6 t)
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T6 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 6);
         }
 
-
-        public bool IsT7 { get { return index == 7; } }
-        public T7 AsT7 { get { return Get<T7>(7); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T7 t)
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T7 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 7);
         }
 
-
-        public bool IsT8 { get { return index == 8; } }
-        public T8 AsT8 { get { return Get<T8>(8); } } 
-        public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T8 t)
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> (T8 t)
         {
 	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>(t, 8);
         }
 
-
-	    public void Switch(Action<T0> f0, Action<T1> f1, Action<T2> f2, Action<T3> f3, Action<T4> f4, Action<T5> f5, Action<T6> f6, Action<T7> f7, Action<T8> f8)
-        {
-			
-			if (this.IsT0 && f0 != null) { f0(this.AsT0); return; }
-			if (this.IsT1 && f1 != null) { f1(this.AsT1); return; }
-			if (this.IsT2 && f2 != null) { f2(this.AsT2); return; }
-			if (this.IsT3 && f3 != null) { f3(this.AsT3); return; }
-			if (this.IsT4 && f4 != null) { f4(this.AsT4); return; }
-			if (this.IsT5 && f5 != null) { f5(this.AsT5); return; }
-			if (this.IsT6 && f6 != null) { f6(this.AsT6); return; }
-			if (this.IsT7 && f7 != null) { f7(this.AsT7); return; }
-			if (this.IsT8 && f8 != null) { f8(this.AsT8); return; }
-
-	    	throw new InvalidOperationException();
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
 		}
 
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8>) obj);
+	    }
 
-	    public TResult Match<TResult>(Func<T0, TResult> f0, Func<T1, TResult> f1, Func<T2, TResult> f2, Func<T3, TResult> f3, Func<T4, TResult> f4, Func<T5, TResult> f5, Func<T6, TResult> f6, Func<T7, TResult> f7, Func<T8, TResult> f8)
-        {
-			
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-			if (this.IsT7 && f7 != null) return f7(this.AsT7);
-			if (this.IsT8 && f8 != null) return f8(this.AsT8);
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
 
-	    	throw new InvalidOperationException();
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
 		}
 
-
-	    public TResult MatchSome<TResult>(Func<T0, TResult> f0 = null, Func<T1, TResult> f1 = null, Func<T2, TResult> f2 = null, Func<T3, TResult> f3 = null, Func<T4, TResult> f4 = null, Func<T5, TResult> f5 = null, Func<T6, TResult> f6 = null, Func<T7, TResult> f7 = null, Func<T8, TResult> f8 = null, Func<TResult> otherwise = null)
-        {
-			
-
-			if (this.IsT0 && f0 != null) return f0(this.AsT0);
-
-			if (this.IsT1 && f1 != null) return f1(this.AsT1);
-
-			if (this.IsT2 && f2 != null) return f2(this.AsT2);
-
-			if (this.IsT3 && f3 != null) return f3(this.AsT3);
-
-			if (this.IsT4 && f4 != null) return f4(this.AsT4);
-
-			if (this.IsT5 && f5 != null) return f5(this.AsT5);
-
-			if (this.IsT6 && f6 != null) return f6(this.AsT6);
-
-			if (this.IsT7 && f7 != null) return f7(this.AsT7);
-
-			if (this.IsT8 && f8 != null) return f8(this.AsT8);
-
-		    if (otherwise != null) return otherwise();
-	    	throw new InvalidOperationException();
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
 		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 0);
+        }
 
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(t, 9);
+        }
 
 		
-		bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> other)
-        {
-            return index == other.index && Equals(value, other.value);
-        }
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8> && Equals(obj);
-        }
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>) obj);
+	    }
 
-        public override int GetHashCode()
-        {
-            unchecked
+	    public override int GetHashCode()
+	    {
+	        unchecked
             {
-                return ((value != null ? value.GetHashCode() : 0)*397) ^ index;
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
             }
+	    }
+		
+	}
+
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 0);
         }
 
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 9);
+        }
+
+		public bool IsT10  => Tag == 10;
+		public T10 AsT10 
+		{ 
+			get 
+			{ 
+				if(!IsT10) throw new InvalidOperationException($"Cannot return as {typeof(T10)} as result, value is {Value?.GetType()}");  
+				return (T10) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> (T10 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(t, 10);
+        }
+
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
+
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 0);
+        }
+
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 9);
+        }
+
+		public bool IsT10  => Tag == 10;
+		public T10 AsT10 
+		{ 
+			get 
+			{ 
+				if(!IsT10) throw new InvalidOperationException($"Cannot return as {typeof(T10)} as result, value is {Value?.GetType()}");  
+				return (T10) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T10 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 10);
+        }
+
+		public bool IsT11  => Tag == 11;
+		public T11 AsT11 
+		{ 
+			get 
+			{ 
+				if(!IsT11) throw new InvalidOperationException($"Cannot return as {typeof(T11)} as result, value is {Value?.GetType()}");  
+				return (T11) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> (T11 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(t, 11);
+        }
+
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
+
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 0);
+        }
+
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 9);
+        }
+
+		public bool IsT10  => Tag == 10;
+		public T10 AsT10 
+		{ 
+			get 
+			{ 
+				if(!IsT10) throw new InvalidOperationException($"Cannot return as {typeof(T10)} as result, value is {Value?.GetType()}");  
+				return (T10) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T10 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 10);
+        }
+
+		public bool IsT11  => Tag == 11;
+		public T11 AsT11 
+		{ 
+			get 
+			{ 
+				if(!IsT11) throw new InvalidOperationException($"Cannot return as {typeof(T11)} as result, value is {Value?.GetType()}");  
+				return (T11) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T11 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 11);
+        }
+
+		public bool IsT12  => Tag == 12;
+		public T12 AsT12 
+		{ 
+			get 
+			{ 
+				if(!IsT12) throw new InvalidOperationException($"Cannot return as {typeof(T12)} as result, value is {Value?.GetType()}");  
+				return (T12) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> (T12 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(t, 12);
+        }
+
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
+
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 0);
+        }
+
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 9);
+        }
+
+		public bool IsT10  => Tag == 10;
+		public T10 AsT10 
+		{ 
+			get 
+			{ 
+				if(!IsT10) throw new InvalidOperationException($"Cannot return as {typeof(T10)} as result, value is {Value?.GetType()}");  
+				return (T10) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T10 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 10);
+        }
+
+		public bool IsT11  => Tag == 11;
+		public T11 AsT11 
+		{ 
+			get 
+			{ 
+				if(!IsT11) throw new InvalidOperationException($"Cannot return as {typeof(T11)} as result, value is {Value?.GetType()}");  
+				return (T11) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T11 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 11);
+        }
+
+		public bool IsT12  => Tag == 12;
+		public T12 AsT12 
+		{ 
+			get 
+			{ 
+				if(!IsT12) throw new InvalidOperationException($"Cannot return as {typeof(T12)} as result, value is {Value?.GetType()}");  
+				return (T12) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T12 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 12);
+        }
+
+		public bool IsT13  => Tag == 13;
+		public T13 AsT13 
+		{ 
+			get 
+			{ 
+				if(!IsT13) throw new InvalidOperationException($"Cannot return as {typeof(T13)} as result, value is {Value?.GetType()}");  
+				return (T13) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> (T13 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(t, 13);
+        }
+
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
+	}
+
+	[JsonConverter(typeof(OneOfJsonConverter))]
+	public struct OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>	: IOneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>, IEquatable<OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>
+	{
+		OneOf(object value, int tag)
+		{
+			Value = value;
+			Tag = tag;
+		}
+
+		public object Value { get; }
+		public int Tag { get; }
+		public bool IsT0  => Tag == 0;
+		public T0 AsT0 
+		{ 
+			get 
+			{ 
+				if(!IsT0) throw new InvalidOperationException($"Cannot return as {typeof(T0)} as result, value is {Value?.GetType()}");  
+				return (T0) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T0 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 0);
+        }
+
+		public bool IsT1  => Tag == 1;
+		public T1 AsT1 
+		{ 
+			get 
+			{ 
+				if(!IsT1) throw new InvalidOperationException($"Cannot return as {typeof(T1)} as result, value is {Value?.GetType()}");  
+				return (T1) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T1 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 1);
+        }
+
+		public bool IsT2  => Tag == 2;
+		public T2 AsT2 
+		{ 
+			get 
+			{ 
+				if(!IsT2) throw new InvalidOperationException($"Cannot return as {typeof(T2)} as result, value is {Value?.GetType()}");  
+				return (T2) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T2 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 2);
+        }
+
+		public bool IsT3  => Tag == 3;
+		public T3 AsT3 
+		{ 
+			get 
+			{ 
+				if(!IsT3) throw new InvalidOperationException($"Cannot return as {typeof(T3)} as result, value is {Value?.GetType()}");  
+				return (T3) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T3 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 3);
+        }
+
+		public bool IsT4  => Tag == 4;
+		public T4 AsT4 
+		{ 
+			get 
+			{ 
+				if(!IsT4) throw new InvalidOperationException($"Cannot return as {typeof(T4)} as result, value is {Value?.GetType()}");  
+				return (T4) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T4 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 4);
+        }
+
+		public bool IsT5  => Tag == 5;
+		public T5 AsT5 
+		{ 
+			get 
+			{ 
+				if(!IsT5) throw new InvalidOperationException($"Cannot return as {typeof(T5)} as result, value is {Value?.GetType()}");  
+				return (T5) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T5 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 5);
+        }
+
+		public bool IsT6  => Tag == 6;
+		public T6 AsT6 
+		{ 
+			get 
+			{ 
+				if(!IsT6) throw new InvalidOperationException($"Cannot return as {typeof(T6)} as result, value is {Value?.GetType()}");  
+				return (T6) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T6 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 6);
+        }
+
+		public bool IsT7  => Tag == 7;
+		public T7 AsT7 
+		{ 
+			get 
+			{ 
+				if(!IsT7) throw new InvalidOperationException($"Cannot return as {typeof(T7)} as result, value is {Value?.GetType()}");  
+				return (T7) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T7 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 7);
+        }
+
+		public bool IsT8  => Tag == 8;
+		public T8 AsT8 
+		{ 
+			get 
+			{ 
+				if(!IsT8) throw new InvalidOperationException($"Cannot return as {typeof(T8)} as result, value is {Value?.GetType()}");  
+				return (T8) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T8 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 8);
+        }
+
+		public bool IsT9  => Tag == 9;
+		public T9 AsT9 
+		{ 
+			get 
+			{ 
+				if(!IsT9) throw new InvalidOperationException($"Cannot return as {typeof(T9)} as result, value is {Value?.GetType()}");  
+				return (T9) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T9 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 9);
+        }
+
+		public bool IsT10  => Tag == 10;
+		public T10 AsT10 
+		{ 
+			get 
+			{ 
+				if(!IsT10) throw new InvalidOperationException($"Cannot return as {typeof(T10)} as result, value is {Value?.GetType()}");  
+				return (T10) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T10 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 10);
+        }
+
+		public bool IsT11  => Tag == 11;
+		public T11 AsT11 
+		{ 
+			get 
+			{ 
+				if(!IsT11) throw new InvalidOperationException($"Cannot return as {typeof(T11)} as result, value is {Value?.GetType()}");  
+				return (T11) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T11 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 11);
+        }
+
+		public bool IsT12  => Tag == 12;
+		public T12 AsT12 
+		{ 
+			get 
+			{ 
+				if(!IsT12) throw new InvalidOperationException($"Cannot return as {typeof(T12)} as result, value is {Value?.GetType()}");  
+				return (T12) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T12 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 12);
+        }
+
+		public bool IsT13  => Tag == 13;
+		public T13 AsT13 
+		{ 
+			get 
+			{ 
+				if(!IsT13) throw new InvalidOperationException($"Cannot return as {typeof(T13)} as result, value is {Value?.GetType()}");  
+				return (T13) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T13 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 13);
+        }
+
+		public bool IsT14  => Tag == 14;
+		public T14 AsT14 
+		{ 
+			get 
+			{ 
+				if(!IsT14) throw new InvalidOperationException($"Cannot return as {typeof(T14)} as result, value is {Value?.GetType()}");  
+				return (T14) Value;
+			}
+		}
+		public static implicit operator OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> (T14 t)
+        {
+	         return new OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(t, 14);
+        }
+
+		
+		public bool Equals(OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> oneOf)
+		{
+			return oneOf.Tag == Tag && Equals(oneOf.Value, Value);
+		}
+
+		public override bool Equals(object obj)
+	    {
+			if (ReferenceEquals(null, obj)) return false;
+	        return obj is OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> && Equals((OneOf<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+            {
+                return ((Value?.GetHashCode() ?? 0)*397) ^ Tag;
+            }
+	    }
+		
 	}
 
 }

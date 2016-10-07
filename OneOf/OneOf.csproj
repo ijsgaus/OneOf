@@ -40,8 +40,26 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OneOf.cs" />
-    <Compile Include="OneOfBase.cs" />
+    <Compile Include="IOneOfExtensions.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IOneOfExtensions.tt</DependentUpon>
+    </Compile>
+    <Compile Include="IOneOfT.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IOneOfT.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OneOf.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OneOf.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OneOfBase.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OneOfBase.tt</DependentUpon>
+    </Compile>
     <Compile Include="OneOfJsonConverter.cs" />
     <Compile Include="OneOfBaseJsonConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -52,7 +70,27 @@
     <Compile Include="Types\YesNoOrMaybe.cs" />
     <Compile Include="Types\YesOrNo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="IOneOfExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IOneOfExtensions.cs</LastGenOutput>
+    </Content>
+    <Content Include="IOneOfT.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IOneOfT.cs</LastGenOutput>
+    </Content>
+    <Content Include="OneOf.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>OneOf.cs</LastGenOutput>
+    </Content>
+    <Content Include="OneOfBase.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>OneOfBase.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
